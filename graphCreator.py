@@ -11,6 +11,16 @@ def read_dump(source=input_dump):
         dump = dump.replace(' ','')
         dump = dump.replace('\n','')
         dump = dump.replace('=',':')
-        return parse(dump)
+        data = parse(dump)
+        for l in data:
+            if isinstance(l,dict):
+                for k,v in l.items():
+                    try:
+                        l[k] = float(v)
+                        if float(v).is_integer():
+                            l[k] = int(float(v))
+                    except:
+                        pass                  
+        return data
     
 recipes = read_dump()
