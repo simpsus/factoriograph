@@ -12,15 +12,28 @@ def read_dump(source=input_dump):
         dump = dump.replace('\n','')
         dump = dump.replace('=',':')
         data = parse(dump)
-        for l in data:
-            if isinstance(l,dict):
-                for k,v in l.items():
+        for r in data:
+            for (d,k) in [(r,'energy')] + [(i,'amount') for i in r['ingredients']]\
+                 + [(p,'amount') for p in r['products']] + [(p,'probability') for p in r['products']]:
                     try:
-                        l[k] = float(v)
-                        if float(v).is_integer():
-                            l[k] = int(float(v))
+                        d[k] = float(d[k])
+                        if d[k].is_integer():
+                            d[k] = int(d[k])
                     except:
-                        pass                  
-        return data
+                        pass
+    return data
     
 recipes = read_dump()
+
+def create_graph(recipes=recipes):
+    G = nx.DiGraph()
+    for recipe in recipes:
+        name = recipe['name'] + ' ' + recipe['category']
+        G.add_node(name, energy=recipe['energy'])
+        for ingredient in recipe['ingredients']:
+            G.add_edge(ingredient['name'], name, amount=ingredient['amount'])
+        for product in recipe['products']:
+            G.add_edge(name, product['name'], amount=product['amount'])
+    return G
+
+G = create_graph()
