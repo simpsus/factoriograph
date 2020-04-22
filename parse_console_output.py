@@ -47,7 +47,7 @@ def parse(s):
                 value = ''
         elif c == ',':
             if state == 'value':
-                #print(s[:i])
+                #print('debug', s[:i])
                 data[-1][name] = value # set the pair to the top of the stack
                 state = 'root'
     print('I am hoping this is not shown')
