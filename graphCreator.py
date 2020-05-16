@@ -1,5 +1,6 @@
 import networkx as nx
-from parse_console_output import parse
+import re
+from slpp import slpp
 
 input_dump = 'res/recipe_dyworld_0.9.7_etc.txt'
 
@@ -7,23 +8,13 @@ input_dump = 'res/recipe_dyworld_0.9.7_etc.txt'
 def read_dump(source=input_dump):
     with open(source,'r') as f:
         dump = f.read()
-        dump = dump.replace('/n','')
-        dump = dump.replace(' ','')
-        dump = dump.replace('\n','')
-        dump = dump.replace('=',':')
-        data = parse(dump)
-        for r in data:
-            for (d,k) in [(r,'energy')] + [(i,'amount') for i in r['ingredients']]\
-                 + [(p,'amount') for p in r['products']] + [(p,'probability') for p in r['products']]\
-                 + [(p,'amount_min') for p in r['products']] + [(p,'amount_max') for p in r['products']]:
-                    try:
-                        d[k] = float(d[k])
-                        if d[k].is_integer():
-                            d[k] = int(d[k])
-                    except:
-                        pass
-    return data
-    
+
+    # Add quotes around hyphenated strings
+    dump = re.sub(r'\w+(?:-\w+)+', r'"\g<0>"', dump)
+
+    # Parse the dump as LUA data structure
+    return slpp.decode(dump)
+
 recipes = read_dump()
 
 def create_graph(recipes=recipes):
